@@ -1,0 +1,81 @@
+<div class="grid">
+	<h4>View Employee</h4>
+		<div class="col-12">
+			<div class="card">
+				<p-table [value]="customers" [paginator]="true" [rows]="5" [tableStyle]="{ 'min-width': '50rem' }" [rowsPerPageOptions]="[5, 10, 20]">
+					<ng-template pTemplate="header">
+						<tr>
+							<th style="min-width: 8rem">
+								<div class="flex justify-content-between align-items-center">
+									Name
+								</div>
+							</th>
+							<th style="min-width: 8rem">
+								<div class="flex justify-content-between align-items-center">
+									Email
+								</div>
+							</th>
+							<th style="min-width: 8rem">
+								<div class="flex justify-content-between align-items-center">
+									Phone
+								</div>
+							</th>
+							<th style="min-width: 8rem">
+								<div class="flex justify-content-between align-items-center">
+									Address
+								</div>
+							</th>
+							<th style="min-width: 12rem">
+								<div class="flex justify-content-between align-items-center">
+									State
+								</div>
+							</th>
+							<th style="min-width: 8rem">
+								<div class="flex justify-content-between align-items-center">
+									City
+								</div>
+							</th>
+							<th style="min-width: 8rem">
+								<div class="flex justify-content-between align-items-center">
+									Zipcode
+								</div>
+							</th>
+							<th style="min-width: 8rem">
+								<div class="flex justify-content-between align-items-center">
+									Actions
+								</div>
+							</th>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="body" let-customer>
+						<tr class="border-5 border-danger">
+							<td>{{customer.firstname +' '+ customer.lastname}}</td>
+							<td>{{customer.email}}</td>
+							<td>{{customer.phone}}</td>
+							<td>{{customer.address}}</td>
+							<td>{{customer.state}}</td>
+							<td>{{customer.city}}</td>
+							<td>{{customer.zipcode}}</td>
+							<td>
+								<div class="flex justify-content-between">
+									<button (click)="editEmployee(customer._id)" class="p-button p-button-primary font-bold" style="color: white;">Edit</button>
+									<button (click)="deleteEmployee(customer._id)" class="p-button p-button-danger font-bold" style="color: white;">Delete</button>
+								</div>
+							</td>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="emptymessage">
+						<tr>
+							<td colspan="8">No customers found.</td>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="loadingbody">
+						<tr>
+							<td colspan="8">Loading customers data. Please wait.</td>
+						</tr>
+					</ng-template>
+				</p-table>
+			</div>
+		</div>
+	</div>
+<p-toast></p-toast>

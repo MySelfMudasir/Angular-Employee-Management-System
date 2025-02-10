@@ -1,0 +1,48 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Add Employee Data</h5>
+            <form action="" [formGroup]="editEmployeeForm">
+            <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="firstname2">First Name</label>
+                        <input pInputText formControlName="firstname" name="firstname" id="firstname2" type="text" />
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="lastname2">Last Name</label>
+                        <input pInputText formControlName="lastname" name="lastname" id="lastname2" type="text" />
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="email">Email</label>
+                        <input pInputText formControlName="email" name="email" id="email" type="text" />
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="phone">Phone</label>
+                        <input pInputText formControlName="phone" name="phone" id="phone" type="text" />
+                    </div>
+                    <div class="field col-12">
+                        <label htmlFor="address">Address</label>
+                        <input pInputText formControlName="address" name="address"area id="address" rows="4" />
+                    </div>
+                    <div class="field col-12 md:col-3">
+                        <label htmlFor="state">State</label>
+                        <p-dropdown [options]="states" formControlName="state" name="state" optionLabel="name" optionValue="code"></p-dropdown>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="city">City</label>
+                        <input pInputText formControlName="city" name="city" id="city" type="text" />
+                    </div>
+                    <div class="field col-12 md:col-3">
+                        <label htmlFor="zipcode">Zip</label>
+                        <input pInputText formControlName="zipcode" name="zipcode" id="zipcode" type="text" />
+                    </div>
+                </div>
+            </form>
+                <img *ngIf="" [src]="'http://localhost:5000/' + employee.image" width="100">
+                <p-button label="Update" (onClick)="onSubmit()" styleClass="w-full md:w-1" />
+                <p-toast></p-toast>
+        </div>
+    </div>
+
+
+</div>
