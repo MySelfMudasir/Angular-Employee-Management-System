@@ -40,6 +40,7 @@ import { RegisterComponent } from './demo/components/auth/register/register.comp
 import { AddEmployeeComponent } from './demo/components/pages/add-employee/add-employee.component';
 import { ViewEmployeeComponent } from './demo/components/pages/view-employee/view-employee.component';
 import { EditEmployeeComponent } from './demo/components/pages/edit-employee/edit-employee.component';
+import { EmployeeAttendenceComponent } from './demo/components/pages/employee-attendence/employee-attendence.component';
 
 
 // Consolidated routes
@@ -79,6 +80,7 @@ const routes: Routes = [
             { path: 'add-employee', component: AddEmployeeComponent},
             { path: 'view-employee', component: ViewEmployeeComponent},
             { path: 'edit-employee/:id', component: EditEmployeeComponent},
+            { path: 'employee-attendence', component: EmployeeAttendenceComponent},
             { path: 'documentation', component: DocumentationComponent },
         ]
     },

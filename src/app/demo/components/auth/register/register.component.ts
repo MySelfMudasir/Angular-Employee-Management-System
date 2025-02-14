@@ -39,7 +39,7 @@ export class RegisterComponent {
     apiService = inject(ApiService);
 
     registerForm = new FormGroup({
-      name: new FormControl('mudasir7777', [Validators.required]),
+      username: new FormControl('mudasir.maqbool', [Validators.required]),
       email: new FormControl('mudasir7777@gmail.com', [Validators.required, Validators.email]),
       password: new FormControl('mudasir123', [Validators.required]),
       cpassword: new FormControl('mudasir123', [Validators.required])
@@ -63,6 +63,7 @@ export class RegisterComponent {
       else {
         // Handle form errors
         console.log('Form is not valid');
+        this.messageService.add({ severity: 'error', summary: 'Failed', detail: 'Invalid Form Submission' });
       }
     }
 
@@ -74,17 +75,30 @@ export class RegisterComponent {
 
 
     addUser(userData: any) {
-      this.apiService.addUser(userData).subscribe((response) => {
-        console.log('Response:', response);
-        if(response.status == 201) {
-          this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'User Added Successfully' });
-          setTimeout(() => {
-            this.router.navigate(['/login']);
-          }, 2000);
-        }
-        else{
-          this.messageService.add({ severity: 'danger', summary: 'Failed', detail: 'User Added Failed' });
-        }
+      this.apiService.addUser(userData).toPromise().then((response) => {
+      console.log('Response:', response);
+      if(response.status == 201) {
+        this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Employee Registered Successfully' });
+        setTimeout(() => {
+        this.router.navigate(['/login']);
+        }, 1500);
+      }
+      else{
+        this.messageService.add({ severity: 'error', summary: 'Failed', detail: 'Employee Registration Failed' });
+      }
+      }).catch((error) => {
+      if(error.error.message == 'Employee does not exist' && error.error.status == 409) {
+        console.log('Error Adding User:', error.error.message);
+        this.messageService.add({ severity: 'error', summary: 'Failed', detail: error.error.message });
+      }
+      else if(error.error.message == 'Failed to add user' && error.error.status == 500) {
+        console.log('Error Adding User:', error.error.message);
+        this.messageService.add({ severity: 'error', summary: 'Failed', detail:'Invalid Employee Username or Email' });
+      }
+      else if(error.error.message == 'Employee not found' && error.error.status == 409) {
+        console.log('Error Adding User:', error);
+        this.messageService.add({ severity: 'error', summary: 'Failed', detail:'Employee not found' });
+      }
       });
     }
 

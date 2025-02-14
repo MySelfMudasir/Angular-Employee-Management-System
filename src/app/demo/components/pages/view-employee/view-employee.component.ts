@@ -1,8 +1,9 @@
 import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -33,10 +34,11 @@ import { LayoutService } from 'src/app/layout/service/app.layout.service';
     ProgressBarModule,
     ToastModule,
     RouterLink,
+    ConfirmDialogModule
   ],
   templateUrl: './view-employee.component.html',
   styleUrl: './view-employee.component.scss',
-  providers: [MessageService]
+  providers: [MessageService, ConfirmationService]
 })
 export class ViewEmployeeComponent {
 
@@ -46,7 +48,7 @@ export class ViewEmployeeComponent {
 
   @ViewChild('filter') filter!: ElementRef;
 
-  constructor(public router:Router, public layoutService: LayoutService, private messageService: MessageService) { }
+  constructor(public router:Router, public layoutService: LayoutService, private messageService: MessageService, private confirmationService: ConfirmationService) { }
   apiService = inject(ApiService);
 
 
@@ -75,29 +77,43 @@ export class ViewEmployeeComponent {
   }
 
   deleteEmployee(id){
-    console.log('Delete Employee ID:', id);
-    if (confirm('Are you sure you want to delete this employee?')) {
-      this.apiService.deleteEmployee(id).subscribe((response) => {
-      console.log('Delete Employee:', response);
-      if(response.status == 200){
-        this.messageService.add({severity:'success', summary: 'Success', detail: 'Employee Deleted Successfully'});
-        this.getAllEmployee();
-      }
-      else{
-        this.messageService.add({severity:'error', summary: 'Failed', detail: 'Error Deleting Employee'});
-      }
+    this.confirmationService.confirm({
+      key: 'confirm1',
+      message: 'Are you sure to perform this action?',
+      accept: () => {
+        console.log('Delete Employee ID:', id);
+          this.apiService.deleteEmployee(id).subscribe((response) => {
+          console.log('Delete Employee:', response);
+          if(response.status == 200){
+            this.messageService.add({severity:'success', summary: 'Success', detail: 'Employee Deleted Successfully'});
+            this.getAllEmployee();
+          }
+          else{
+            this.messageService.add({severity:'error', summary: 'Failed', detail: 'Error Deleting Employee'});
+          }
+          },
+          (error) => {
+            console.error('Error server Deleting Employee:', error);
+            this.messageService.add({severity:'error', summary: 'Failed', detail: 'Server Error'});
+          }
+        );
       },
-      (error) => {
-        console.error('Error server Deleting Employee:', error);
-        this.messageService.add({severity:'error', summary: 'Failed', detail: 'Server Error'});
+      reject: () => {
+          this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'Employee Deleted Failed' });
       }
-    );
-    }
+  });
+
   }
 
 
 
   
+  confirm1() {
+    this.confirmationService.confirm({
+        key: 'confirm1',
+        message: 'Are you sure to perform this action?'
+    });
+}
 
 
    

@@ -32,7 +32,9 @@
                         "styles": [
                             "src/styles.scss"
                         ],
-                        "scripts": []
+                        "scripts": [
+                            "node_modules/@simplewebauthn/browser/dist/bundle/index.umd.min.js"
+                        ]
                     },
                     "configurations": {
                         "production": {

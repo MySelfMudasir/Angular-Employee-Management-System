@@ -218,9 +218,9 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/view-employee'],
                     },
                     {
-                        label: 'Edit Employee',
-                        icon: 'pi pi-fw pi-pencil',
-                        routerLink: ['/edit-employee'],
+                        label: 'Employee Attendence',
+                        icon: 'pi pi-fw pi-file',
+                        routerLink: ['/employee-attendence'],
                     },
                 ],
             },

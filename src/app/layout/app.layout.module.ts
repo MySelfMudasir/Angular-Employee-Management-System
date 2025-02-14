@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { InputTextModule } from 'primeng/inputtext';
 import { SidebarModule } from 'primeng/sidebar';
@@ -17,6 +17,7 @@ import { AppFooterComponent } from './app.footer.component';
 import { AppConfigModule } from './config/config.module';
 import { AppSidebarComponent } from "./app.sidebar.component";
 import { AppLayoutComponent } from "./app.layout.component";
+import { tokenInterceptor } from '../interceptor/token.interceptor';
 
 @NgModule({ declarations: [
         AppMenuitemComponent,
@@ -36,5 +37,10 @@ import { AppLayoutComponent } from "./app.layout.component";
         InputSwitchModule,
         RippleModule,
         RouterModule,
-        AppConfigModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
+        AppConfigModule], providers: [
+            provideHttpClient(
+                withInterceptorsFromDi(),
+                withInterceptors([tokenInterceptor])
+            )
+        ] })
 export class AppLayoutModule { }

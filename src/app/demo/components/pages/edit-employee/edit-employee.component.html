@@ -1,7 +1,7 @@
 <div class="grid">
     <div class="col-12">
         <div class="card">
-            <h5>Add Employee Data</h5>
+            <h5>Edit Employee Data</h5>
             <form action="" [formGroup]="editEmployeeForm">
             <div class="p-fluid p-formgrid grid">
                     <div class="field col-12 md:col-6">
@@ -26,9 +26,9 @@
                     </div>
                     <div class="field col-12 md:col-3">
                         <label htmlFor="state">State</label>
-                        <p-dropdown [options]="states" formControlName="state" name="state" optionLabel="name" optionValue="code"></p-dropdown>
+                        <p-dropdown [options]="states" [showClear]="true" formControlName="state" name="state" optionLabel="name" optionValue="code" placeholder="Select a state" />
                     </div>
-                    <div class="field col-12 md:col-6">
+                    <div class="field col-12 md:col-3">
                         <label htmlFor="city">City</label>
                         <input pInputText formControlName="city" name="city" id="city" type="text" />
                     </div>
@@ -36,9 +36,38 @@
                         <label htmlFor="zipcode">Zip</label>
                         <input pInputText formControlName="zipcode" name="zipcode" id="zipcode" type="text" />
                     </div>
+                    <div class="field col-12 md:col-3">
+                        <label htmlFor="role">Role</label>
+                        <p-dropdown [options]="role" [showClear]="true" formControlName="role" name="role" optionLabel="name" optionValue="code" placeholder="Select a role"></p-dropdown>
+                    </div>
+                    <div class="field col-12 md:col-3">
+                        <label htmlFor="pic">Image</label>
+                        <div class="card flex justify-content-center">
+                            <p-image 
+                                [src]="image"
+                                alt="Image"
+                                imageClass="w-full h-full" />
+                                
+                        </div>
+                    </div>
+                    <div class="field col-12 md:col-2">
+                        <label htmlFor="pic">Profile Pic</label>
+                            <div class="card flex justify-content-center">
+                                <p-fileUpload 
+                                    mode="basic" 
+                                    name="demo[]" 
+                                    chooseIcon="pi pi-upload" 
+                                    url="https://www.primefaces.org/cdn/api/upload.php" 
+                                    accept="image/*" 
+                                    maxFileSize="10000000000" 
+                                    (onUpload)="onBasicUploadAuto($event)" 
+                                    [auto]="true" 
+                                    [multiple]="false" 
+                                    chooseLabel="Browse" />
+                            </div>
+                    </div>
                 </div>
             </form>
-                <img *ngIf="" [src]="'http://localhost:5000/' + employee.image" width="100">
                 <p-button label="Update" (onClick)="onSubmit()" styleClass="w-full md:w-1" />
                 <p-toast></p-toast>
         </div>

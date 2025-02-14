@@ -1,16 +1,19 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const multer = require("multer");
 const cors = require("cors");
 const path = require("path");
-
-
 const MySchema = require('./models/model');  // Import the User model
+const authenticateUser = require('./webauth'); // Include webauth.js
+
+
 const { log } = require('@angular-devkit/build-angular/src/builders/ssr-dev-server');
 
 
 const app =  express();
+const SECRET_KEY = 'your-secret-key';
 const PORT = 5000;
 
 // Middleware
@@ -26,6 +29,7 @@ mongoose.connect('mongodb://localhost:27017/temp')
 
 
 
+
 // Configure Multer and Set up storage for uploaded images
 const storage = multer.diskStorage({
   destination: './uploads', // Folder where images will be stored
@@ -34,21 +38,138 @@ const storage = multer.diskStorage({
   }
 });
 
+
+
+
 const upload = multer({ storage: storage });
-
-
 // Serve uploaded images statically
 app.use('/uploads', express.static('uploads'));
 
 
 
-// API to add an employee with an image
-app.post('/employee/add-employee', upload.single('image'), async (req, res) => {
-  try {
-      const { firstname, lastname, email, phone, address, state, city, zipcode } = req.body;
-      const image = req.file ? req.file.path : null;
 
+
+// Middleware to authenticate the token
+const authenticateToken = (req, res, next) => {
+  const token = req.header('Authorization')?.replace('Bearer ', ''); // Get the token from Authorization header
+  if (!token) {
+    return res.status(403).json({ message: 'Access denied, no token provided.' });
+  }
+  // Verify the token
+  jwt.verify(token, SECRET_KEY, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid or expired token.' });
+    }
+    // Token is valid, attach the decoded payload to the request
+    req.user = decoded;
+    next(); // Continue to the next middleware or route handler
+  });
+};
+
+const checkEmployee = (req, res, next) => {
+  const { username, email } = req.body;
+  MySchema.Employee.findOne({ username, email })
+    .then(user => {
+      if (user) {
+        console.log('Employee found:', user);
+        next(); // Continue to the next middleware or route handler
+      } else {
+        console.log('Employee not found:', user);
+        return res.status(409).json({
+          message: 'Employee does not exist',
+          status: '409',
+        });
+      }
+    })
+    .catch(err => {
+      console.error('Error checking employee:', err);
+      res.status(500).json({
+        message: 'Failed to check employee',
+        status: '500',
+        error: err
+      });
+    });
+};
+
+
+
+
+
+// add user
+app.post('/users/add-user', checkEmployee, (req, res) => {
+  console.log('Request body:', req.body);
+  const { username, email, password } = req.body;
+  const newUser = new MySchema.User({ username, email, password });
+  newUser.save()
+  .then(user => {
+    console.log('User saved:', user);
+    res.status(201).json({
+      message: 'User added successfully',
+      status: '201',
+      user: user
+    });
+  })
+  .catch(err => {
+    console.error('Error saving user:', err); // Log errors
+    res.status(500).json({
+      message: 'Failed to add user',
+      status: '500',
+      error: err
+    });
+  });
+});
+
+
+
+
+
+// validate-user
+app.post('/users/validate-user', (req, res) => {
+console.log('Request body:', req.body);
+res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins (can be restricted)
+const { username, password } = req.body;
+MySchema.User.findOne({ username, password })
+  .then(user => {
+    if (user) {
+      console.log('User found:', user);
+      const token = jwt.sign({ username, password }, SECRET_KEY, { expiresIn: '1h' });
+      res.status(200).json({
+        message: 'User found successfully',
+        status: '200',
+        userName: user.username,
+        userEmail: user.email,
+        token: token
+      });
+    } else {
+      console.log('User not found');
+      res.status(404).json({
+        message: 'User not found',
+        status: '404'
+      });
+    }
+  })
+  .catch(err => {
+    console.error('Error validating user:', err);
+    res.status(500).json({
+      message: 'Failed to validate user',
+      status: '500',
+      error: err
+    });
+  });
+});
+
+
+
+
+
+// API to add an employee with an image
+app.post('/employee/add-employee', upload.single('image'), async (req, res) => {  
+  try {
+      const { employeeid, username, firstname, lastname, email, phone, address, state, city, zipcode, role } = req.body;
+      const image = req.file ? req.file.path : null;
       const newEmployee = new MySchema.Employee({
+          employeeid,
+          username, 
           firstname,
           lastname,
           email,
@@ -57,11 +178,11 @@ app.post('/employee/add-employee', upload.single('image'), async (req, res) => {
           state,
           city,
           zipcode,
+          role,
           image
       });
 
       await newEmployee.save();
-
       res.status(201).json({
           message: 'Employee added successfully',
           status: 201,
@@ -77,107 +198,15 @@ app.post('/employee/add-employee', upload.single('image'), async (req, res) => {
 
 
 
-// add user
-app.post('/users/add-user', (req, res) => {
-    console.log('Request body:', req.body);
-    const { name, email, password } = req.body;
-    const newUser = new MySchema.User({ name, email, password });
-    newUser.save()
-    .then(user => {
-      console.log('User saved:', user);
-      res.status(201).json({
-        message: 'User added successfully',
-        status: '201',
-        user: user
-      });
-    })
-    .catch(err => {
-      console.error('Error saving user:', err); // Log errors
-      res.status(500).json({
-        message: 'Failed to add user',
-        status: '500',
-        error: err
-      });
-    });
-});
-
-
-
-
-// validate-user
-app.post('/users/validate-user', (req, res) => {
-  console.log('Request body:', req.body);
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins (can be restricted)
-  const { email, password } = req.body;
-
-  User.findOne({ email, password })
-    .then(user => {
-      if (user) {
-        console.log('User found:', user);
-        res.status(200).json({
-          message: 'User found',
-          status: '200',
-          user: user
-        });
-      } else {
-        console.log('User not found');
-        res.status(404).json({
-          message: 'User not found',
-          status: '404'
-        });
-      }
-    })
-    .catch(err => {
-      console.error('Error validating user:', err);
-      res.status(500).json({
-        message: 'Failed to validate user',
-        status: '500',
-        error: err
-      });
-    });
-});
-
-
-
-
-
-
-// add-employee
-// app.post('/employee/add-employee', (req, res) => {
-//   console.log('Request body:', req.body);
-//   const { firstname, lastname, email, phone, address, state, city, zipcode } = req.body;
-//   const newEmployee = new MySchema.Employee ({ firstname, lastname, email, phone, address, state, city, zipcode });
-//   newEmployee.save()
-//   .then(employee => {
-//     console.log('Employee saved:', employee);
-//     res.status(201).json({
-//       message: 'Employee added successfully',
-//       status: '201',
-//       employee: employee
-//     });
-//   })
-//   .catch(err => {
-//     console.error('Error saving employee:', err);
-//     res.status(500).json({
-//       message: 'Failed to add employee',
-//       status: '500',
-//       error: err
-//     });
-//   });
-// });
-
-
-
-
 // view-employee
-app.get('/employee/view-employee', (req, res) => {
+app.get('/employee/view-employee', authenticateToken, (req, res) => {
   MySchema.Employee.find()
     .then(employees => {
       console.log('Employees retrieved:', employees);
       res.status(200).json({
         message: 'Employees retrieved successfully',
         status: '200',
-        employees: employees
+        employees: employees,
       });
     })
     .catch(err => {
@@ -192,7 +221,8 @@ app.get('/employee/view-employee', (req, res) => {
 
 
 
-// get-employee
+
+// get-employee with id
 app.get('/employee/get-employee/:id', (req, res) => {
   const id = req.params.id;
   MySchema.Employee.findById(id)
@@ -223,38 +253,46 @@ app.get('/employee/get-employee/:id', (req, res) => {
 });
 
 
-// update-Employee
-app.put('/employee/update-employee/:id', (req, res) => {
+
+
+// update-Employee with id
+app.put('/employee/update-employee/:id', upload.single('image'), async (req, res) => {
   const id = req.params.id;
   console.log(id);
   console.log(req.body);
-  
-  const { firstname, lastname, email, phone, address, state, city, zipcode } = req.body;
-  MySchema.Employee.findByIdAndUpdate(id, { firstname, lastname, email, phone, address, state, city, zipcode }, { new: true })
-    .then(employee => {
-      if (employee) {
-        console.log('Employee updated:', employee);
-        res.status(200).json({
-          message: 'Employee updated successfully',
-          status: '200',
-          employee: employee
-        });
-      } else {
-        console.log('Employee not found');
-        res.status(404).json({
-          message: 'Employee not found',
-          status: '404'
-        });
-      }
-    })
-    .catch(err => {
-      console.error('Error updating employee:', err);
-      res.status(500).json({
-        message: 'Failed to update employee',
-        status: '500',
-        error: err
+
+  const { employeeid, username, firstname, lastname, email, phone, address, state, city, zipcode, role } = req.body;
+  const image = req.file ? req.file.path : null;
+
+  const updateData = { employeeid, username, firstname, lastname, email, phone, address, state, city, zipcode, role };
+  if (image) {
+    updateData.image = image;
+  }
+
+  try {
+    const employee = await MySchema.Employee.findByIdAndUpdate(id, updateData, { new: true });
+    if (employee) {
+      console.log('Employee updated:', employee);
+      res.status(200).json({
+        message: 'Employee updated successfully',
+        status: '200',
+        employee: employee
       });
+    } else {
+      console.log('Employee not found');
+      res.status(404).json({
+        message: 'Employee not found',
+        status: '404'
+      });
+    }
+  } catch (err) {
+    console.error('Error updating employee:', err);
+    res.status(500).json({
+      message: 'Failed to update employee',
+      status: '500',
+      error: err
     });
+  }
 });
 
 

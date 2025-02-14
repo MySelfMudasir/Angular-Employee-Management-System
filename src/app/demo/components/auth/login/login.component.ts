@@ -30,18 +30,17 @@ import { ToastModule } from 'primeng/toast';
 export class LoginComponent {
 
     valCheck: string[] = ['remember'];
-
     password!: string;
 
     constructor(public router:Router, public layoutService: LayoutService, private messageService: MessageService) { }
-
     apiService = inject(ApiService);
 
 
     loginForm: FormGroup = new FormGroup({
-        email: new FormControl('mudasir7777@gmail.com'),
+        username: new FormControl('mudasir.maqbool'),
         password: new FormControl('mudasir123')
     })
+    
     
     onSubmit() {
         if (this.loginForm.valid) {
@@ -64,6 +63,15 @@ export class LoginComponent {
                 if (response.status == 200) {
                     // Redirect to dashboard
                     this.router.navigate(['/add-employee']);
+                    const CurrentLoginUserPayload = {
+                        userName: response.userName,
+                        userEmail: response.userEmail,
+                        token: response.token
+                    }
+                    // Save user details in local storage
+                    localStorage.setItem('CurrentLoginUserDetails', JSON.stringify(CurrentLoginUserPayload));
+                    
+
                 }
             },
             (error) => {

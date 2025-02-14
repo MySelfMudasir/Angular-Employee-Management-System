@@ -26,9 +26,9 @@
                     </div>
                     <div class="field col-12 md:col-3">
                         <label htmlFor="state">State</label>
-                        <p-dropdown [options]="states" formControlName="state" name="state" optionLabel="name" optionValue="code"></p-dropdown>
+                        <p-dropdown [options]="states" [showClear]="true" formControlName="state" name="state" optionLabel="name" optionValue="code" placeholder="Select a state"></p-dropdown>
                     </div>
-                    <div class="field col-12 md:col-6">
+                    <div class="field col-12 md:col-3">
                         <label htmlFor="city">City</label>
                         <input pInputText formControlName="city" name="city" id="city" type="text" />
                     </div>
@@ -36,7 +36,11 @@
                         <label htmlFor="zipcode">Zip</label>
                         <input pInputText formControlName="zipcode" name="zipcode" id="zipcode" type="text" />
                     </div>
-                    <div class="field col-12 md:col-12">
+                    <div class="field col-12 md:col-3">
+                        <label htmlFor="role">Role</label>
+                        <p-dropdown [options]="roles" [showClear]="true" formControlName="role" name="role" optionLabel="name" optionValue="code" placeholder="Select a role"></p-dropdown>
+                    </div>
+                    <div class="field col-12 md:col-6">
                         <label htmlFor="pic">Profile Pic</label>
                             <p-fileUpload 
                                 name="demo[]" 
@@ -53,6 +57,16 @@
                                         </ul>
                                     </ng-template>
                             </p-fileUpload>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="biomatric">Biomatric Verification</label>
+                        <div class="p-inputgroup grid">
+                            <div class="col-8">
+                                <p-button label="Biomatric" icon="fa-solid fa-fingerprint"                                         
+                                [loading]="loading" 
+                                (onClick)="webAuthRegister()" style="margin-top: 1.25rem;" styleClass="w-5" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>
